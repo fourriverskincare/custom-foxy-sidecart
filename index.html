@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom FoxyCart Sidecart</title>
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'EB Garamond', serif;
+            background: #DBD8D1;
+            color: #1E2321;
+        }
+
+        .sidecart {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0px 15px;
+            gap: 30px;
+            position: relative;
+            width: 300px;
+            min-height: 800px;
+            background: #DBD8D1;
+        }
+
+        /* Navigation Bar */
+        .cart-nav {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            padding: 20px 0px 10px;
+            gap: 10px;
+            width: 100%;
+            height: 43px;
+            justify-content: space-between;
+        }
+
+        .nav-button {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .nav-text {
+            font-family: 'EB Garamond', serif;
+            font-style: italic;
+            font-weight: 400;
+            font-size: 20px;
+            line-height: 26px;
+            color: #1E2321;
+        }
+
+        .nav-arrow {
+            width: 20px;
+            height: 8px;
+            font-family: 'EB Garamond', serif;
+            font-style: italic;
+            font-weight: 400;
+            font-size: 20px;
+            color: #1E2321;
+        }
+
+        .nav-arrow.left {
+            transform: matrix(-1, 0, 0, 1, 0, 0);
+        }
+
+        /* Cart Header */
+        .cart-header {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .cart-title {
+            font-family: 'EB Garamond', serif;
+            font-style: italic;
+            font-weight: 400;
+            font-size: 38px;
+            line-height: 50px;
+            color: #1E2321;
+        }
+
+        .cart-count {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 5px;
+            width: 100%;
+        }
+
+        .count-text {
+            font-family: 'EB Garamond', serif;
+            font-weight: 400;
+            font-size: 20px;
+            line-height: 26px;
+            color: #1E2321;
+        }
+
+        /* Empty Cart */
+        .empty-cart {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            padding: 15px 10px;
+            gap: 15px;
+            width: 100%;
+            background: #F6F5F4;
+            border-radius: 20px;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .empty-text {
+            font-family: 'EB Garamond', serif;
+            font-weight: 400;
+            font-size: 24px;
+            line-height: 31px;
+            text-align: center;
+            color: #1E2321;
+        }
+
+        /* Cart Items */
+        .cart-items {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .cart-item {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 20px 10px;
+            gap: 15px;
+            position: relative;
+            width: 100%;
+            background: #F6F5F4;
+            border-radius: 10px;
+        }
+
+        .remove-item {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            right: 10px;
+            top: 5px;
+            border: 1px solid #1E2321;
+            background: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            color: #1E2321;
+        }
+
+        .item-main-info {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .product-image {
+            width: 80px;
+            height: 80px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 10px;
+            flex-shrink: 0;
+        }
+
+        .product-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .product-name {
+            font-family: 'EB Garamond', serif;
+            font-weight: 500;
+            font-size: 18px;
+            line-height: 23px;
+            color: #1E2321;
+        }
+
+        .item-controls {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: flex-end;
+            width: 100%;
+        }
+
+        .quantity-input {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 5px 10px;
+            width: 29px;
+            height: 22px;
+            border: 1px solid rgba(30, 35, 33, 0.5);
+            border-radius: 5px;
+            background: none;
+            font-family: 'EB Garamond', serif;
+            font-size: 18px;
+            font-weight: 500;
+            color: #1E2321;
+            text-align: center;
+        }
+
+        .price-wrap {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: flex-end;
+            gap: 8px;
+        }
+
+        .single-price {
+            font-family: 'EB Garamond', serif;
+            font-weight: 500;
+            font-size: 14px;
+            line-height: 18px;
+            color: rgba(129, 127, 117, 0.8);
+        }
+
+        .single-price.hidden {
+            display: none;
+        }
+
+        .total-price {
+            font-family: 'EB Garamond', serif;
+            font-weight: 500;
+            font-size: 18px;
+            line-height: 23px;
+            color: #1E2321;
+        }
+
+        .item-options {
+            font-family: 'EB Garamond', serif;
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* Coupon Section */
+        .coupon-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .coupon-title {
+            font-family: 'EB Garamond', serif;
+            font-weight: 400;
+            font-size: 20px;
+            color: #1E2321;
+        }
+
+        .coupon-input-wrap {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .coupon-input {
+            flex: 1;
+            padding: 8px 10px;
+            border: 1px solid rgba(30, 35, 33, 0.5);
+            border-radius: 5px;
+            background: transparent;
+            font-family: 'EB Garamond', serif;
+            font-size: 16px;
+            color: #1E2321;
+        }
+
+        .coupon-button {
+            padding: 8px 15px;
+            background: #6B8E5A;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-family: 'EB Garamond', serif;
+            cursor: pointer;
+        }
+
+        .applied-coupons {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .applied-coupon {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 10px;
+            background: rgba(107, 142, 90, 0.1);
+            border-radius: 5px;
+        }
+
+        .coupon-remove {
+            background: none;
+            border: none;
+            color: #1E2321;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        /* Tax Section */
+        .tax-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .tax-title {
+            font-family: 'EB Garamond', serif;
+            font-weight: 400;
+            font-size: 20px;
+            line-height: 26px;
+            color: #1E2321;
+        }
+
+        .tax-inputs {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .tax-input {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            padding: 10px 5px;
+            flex: 1;
+            border: 1px solid rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+            background: none;
+            font-family: 'EB Garamond', serif;
+            font-size: 16px;
+            color: #1E2321;
+        }
+
+        /* Order Summary */
+        .summary-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .summary-title {
+            font-family: 'EB Garamond', serif;
+            font-weight: 400;
+            font-size: 30px;
+            line-height: 39px;
+            color: #1E2321;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            font-family: 'EB Garamond', serif;
+            font-size: 18px;
+            color: #1E2321;
+            margin-bottom: 5px;
+        }
+
+        .summary-row.total {
+            font-weight: 500;
+            font-size: 20px;
+            border-top: 1px solid #1E2321;
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+
+        .checkout-button {
+            background: #6B8E5A;
+            color: white;
+            font-family: 'EB Garamond', serif;
+            font-size: 18px;
+            font-weight: 500;
+            border: none;
+            border-radius: 8px;
+            padding: 15px 25px;
+            width: 100%;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            display: block;
+            margin-top: 10px;
+        }
+
+        .checkout-button:hover {
+            background: #5A7A4A;
+        }
+
+        /* Hidden state for empty cart items */
+        .cart-items.empty {
+            display: none;
+        }
+
+        .tax-section.empty {
+            display: none;
+        }
+
+        .summary-section.empty {
+            display: none;
+        }
+
+        .coupon-section.empty {
+            display: none;
+        }
+
+        /* Shipping rates */
+        .shipping-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .shipping-title {
+            font-family: 'EB Garamond', serif;
+            font-weight: 400;
+            font-size: 20px;
+            color: #1E2321;
+        }
+
+        .shipping-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            border: 1px solid rgba(30, 35, 33, 0.3);
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .shipping-option.selected {
+            border-color: #6B8E5A;
+            background: rgba(107, 142, 90, 0.1);
+        }
+
+        .shipping-option input[type="radio"] {
+            margin-right: 8px;
+        }
+
+        @media (max-width: 400px) {
+            .sidecart {
+                width: 280px;
+                padding: 0px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidecart" id="customSidecart">
+        <!-- Navigation -->
+        <div class="cart-nav">
+            <button class="nav-button" id="keepShoppingBtn">
+                <span class="nav-arrow left">→</span>
+                <span class="nav-text">Keep Shopping</span>
+            </button>
+            <button class="nav-button" id="checkoutBtn">
+                <span class="nav-text">Checkout</span>
+                <span class="nav-arrow">→</span>
+            </button>
+        </div>
+
+        <!-- Cart Header -->
+        <div class="cart-header">
+            <h2 class="cart-title">Your Cart</h2>
+            <div class="cart-count">
+                <span class="count-text" id="itemCount">0</span>
+                <span class="count-text">Items in your order</span>
+            </div>
+        </div>
+
+        <!-- Empty Cart Message -->
+        <a href="#" class="empty-cart" id="emptyCartMessage">
+            <p class="empty-text">Your shopping cart is empty. Click here to return to the store.</p>
+        </a>
+
+        <!-- Cart Items -->
+        <div class="cart-items empty" id="cartItems">
+            <!-- Items will be dynamically inserted here -->
+        </div>
+
+        <!-- Coupon Section -->
+        <div class="coupon-section empty" id="couponSection">
+            <h3 class="coupon-title">Coupon Code</h3>
+            <div class="coupon-input-wrap">
+                <input type="text" class="coupon-input" id="couponInput" placeholder="Enter coupon code">
+                <button class="coupon-button" id="applyCouponBtn">Apply</button>
+            </div>
+            <div class="applied-coupons" id="appliedCoupons">
+                <!-- Applied coupons will appear here -->
+            </div>
+        </div>
+
+        <!-- Tax Calculation -->
+        <div class="tax-section empty" id="taxSection">
+            <h3 class="tax-title">Calculate Taxes</h3>
+            <div class="tax-inputs">
+                <input type="text" class="tax-input" id="zipInput" placeholder="Zip">
+                <select class="tax-input" id="regionSelect">
+                    <option value="">City or Other Select</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Shipping Options -->
+        <div class="shipping-section empty" id="shippingSection">
+            <h3 class="shipping-title">Shipping Options</h3>
+            <div id="shippingOptions">
+                <!-- Shipping options will be populated here -->
+            </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="summary-section empty" id="summarySection">
+            <h3 class="summary-title">Order Summary</h3>
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span id="subtotal">$0.00</span>
+            </div>
+            <div class="summary-row" id="shippingRow" style="display: none;">
+                <span>Shipping</span>
+                <span id="shippingCost">$0.00</span>
+            </div>
+            <div class="summary-row" id="taxRow" style="display: none;">
+                <span>Tax</span>
+                <span id="taxAmount">$0.00</span>
+            </div>
+            <div class="summary-row" id="discountRow" style="display: none;">
+                <span>Discount</span>
+                <span id="discountAmount">-$0.00</span>
+            </div>
+            <div class="summary-row total">
+                <span>Order Total:</span>
+                <span id="orderTotal">$0.00</span>
+            </div>
+            <button class="checkout-button" id="proceedCheckoutBtn">
+                • Proceed to Checkout
+            </button>
+        </div>
+    </div>
+
+    <!-- FoxyCart Integration Script -->
+    <script>
+        // FoxyCart Integration Class
+        class FoxyCartSidecart {
+            constructor() {
+                this.cartData = {
+                    items: [],
+                    subtotal: 0,
+                    shipping: 0,
+                    tax: 0,
+                    discount: 0,
+                    total: 0,
+                    coupons: [],
+                    shipping_options: []
+                };
+                this.init();
+            }
+
+            init() {
+                this.bindEvents();
+                this.setupFoxyCartEvents();
+                this.updateDisplay();
+            }
+
+            bindEvents() {
+                // Navigation events
+                document.getElementById('keepShoppingBtn').addEventListener('click', () => {
+                    this.hideSidecart();
+                });
+
+                document.getElementById('checkoutBtn').addEventListener('click', () => {
+                    this.proceedToCheckout();
+                });
+
+                document.getElementById('proceedCheckoutBtn').addEventListener('click', () => {
+                    this.proceedToCheckout();
+                });
+
+                document.getElementById('emptyCartMessage').addEventListener('click', () => {
+                    this.hideSidecart();
+                });
+
+                // Coupon events
+                document.getElementById('applyCouponBtn').addEventListener('click', () => {
+                    this.addCoupon();
+                });
+
+                document.getElementById('couponInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.addCoupon();
+                    }
+                });
+
+                // Tax calculation events
+                document.getElementById('zipInput').addEventListener('input', () => {
+                    this.calculateTaxes();
+                });
+
+                document.getElementById('regionSelect').addEventListener('change', () => {
+                    this.calculateTaxes();
+                });
+            }
+
+            setupFoxyCartEvents() {
+                // Wait for FoxyCart to load
+                var FC = FC || {};
+                FC.onLoad = () => {
+                    // Listen for cart updates
+                    FC.client.on('cart-update', (params) => {
+                        this.updateFromFoxyCart();
+                    });
+
+                    // Listen for sidecart show/hide
+                    FC.client.on('sidecart-show', (params) => {
+                        this.showSidecart();
+                    });
+
+                    FC.client.on('sidecart-hide', (params) => {
+                        this.hideSidecart();
+                    });
+
+                    // Listen for item updates
+                    FC.client.on('cart-item-quantity-update', (params) => {
+                        this.handleQuantityUpdate(params);
+                    });
+
+                    FC.client.on('cart-item-remove', (params) => {
+                        this.handleItemRemove(params);
+                    });
+
+                    // Listen for coupon events
+                    FC.client.on('cart-coupon-add', (params) => {
+                        this.handleCouponAdd(params);
+                    });
+
+                    FC.client.on('cart-coupon-remove', (params) => {
+                        this.handleCouponRemove(params);
+                    });
+
+                    // Listen for address updates
+                    FC.client.on('customer-address-update', (params) => {
+                        this.handleAddressUpdate(params);
+                    });
+
+                    // Listen for shipping updates
+                    FC.client.on('cart-shipping-options-update', (params) => {
+                        this.updateShippingOptions(params);
+                    });
+
+                    // Initial cart load
+                    this.updateFromFoxyCart();
+                };
+            }
+
+            updateFromFoxyCart() {
+                if (typeof FC !== 'undefined' && FC.json) {
+                    // Update cart data from FoxyCart JSON
+                    this.cartData.items = FC.json.items || [];
+                    this.cartData.subtotal = parseFloat(FC.json.total_item_price || 0);
+                    this.cartData.shipping = parseFloat(FC.json.total_shipping || 0);
+                    this.cartData.tax = parseFloat(FC.json.total_tax || 0);
+                    this.cartData.discount = parseFloat(FC.json.total_discount || 0);
+                    this.cartData.total = parseFloat(FC.json.total_price || 0);
+                    this.cartData.coupons = FC.json.coupons || [];
+                    this.cartData.shipping_options = FC.json.shipping_options || [];
+
+                    this.updateDisplay();
+                }
+            }
+
+            updateDisplay() {
+                this.updateItemCount();
+                this.updateCartItems();
+                this.updateCoupons();
+                this.updateShipping();
+                this.updateTotals();
+                this.toggleSections();
+            }
+
+            updateItemCount() {
+                const totalItems = this.cartData.items.reduce((sum, item) => sum + (item.quantity || 0), 0);
+                document.getElementById('itemCount').textContent = totalItems;
+            }
+
+            updateCartItems() {
+                const container = document.getElementById('cartItems');
+                container.innerHTML = '';
+
+                this.cartData.items.forEach((item, index) => {
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'cart-item';
+                    
+                    const singlePriceDisplay = item.quantity > 1 ? 
+                        `<div class="single-price">$${this.formatPrice(item.price)}</div>` : 
+                        `<div class="single-price hidden">$${this.formatPrice(item.price)}</div>`;
+
+                    // Handle item options
+                    let optionsHtml = '';
+                    if (item.product_options && item.product_options.length > 0) {
+                        optionsHtml = '<div class="item-options">';
+                        item.product_options.forEach(option => {
+                            if (option.name !== 'code' && option.name !== 'weight') {
+                                optionsHtml += `${option.name}: ${option.value}<br>`;
+                            }
+                        });
+                        optionsHtml += '</div>';
+                    }
+
+                    itemElement.innerHTML = `
+                        <button class="remove-item" onclick="foxyCartSidecart.removeItem('${item.id}')">×</button>
+                        <div class="item-main-info">
+                            <div class="product-image" style="background-image: url('${item.image || 'https://via.placeholder.com/80x80/F0F0F0/1E2321?text=Product'}')"></div>
+                            <div class="product-info">
+                                <div class="product-name">${item.name}</div>
+                                ${optionsHtml}
+                                <div class="item-controls">
+                                    <input type="number" class="quantity-input" value="${item.quantity}" onchange="foxyCartSidecart.updateQuantity('${item.id}', this.value)" min="1">
+                                    <div class="price-wrap">
+                                        ${singlePriceDisplay}
+                                        <div class="total-price">$${this.formatPrice(item.price * item.quantity)}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(itemElement);
+                });
+            }
+
+            updateCoupons() {
+                const container = document.getElementById('appliedCoupons');
+                container.innerHTML = '';
+
+                this.cartData.coupons.forEach(coupon => {
+                    const couponElement = document.createElement('div');
+                    couponElement.className = 'applied-coupon';
+                    couponElement.innerHTML = `
+                        <span>${coupon.code} (-$${this.formatPrice(coupon.discount_amount)})</span>
+                        <button class="coupon-remove" onclick="foxyCartSidecart.removeCoupon('${coupon.code}')">Remove</button>
+                    `;
+                    container.appendChild(couponElement);
+                });
+            }
+
+            updateShipping() {
+                const container = document.getElementById('shippingOptions');
+                container.innerHTML = '';
+
+                this.cartData.shipping_options.forEach(option => {
+                    const optionElement = document.createElement('div');
+                    optionElement.className = 'shipping-option';
+                    optionElement.innerHTML = `
+                        <label>
+                            <input type="radio" name="shipping_option" value="${option.code}" ${option.selected ? 'checked' : ''}>
+                            ${option.name} - $${this.formatPrice(option.price)}
+                        </label>
+                    `;
+                    optionElement.addEventListener('click', () => {
+                        this.selectShippingOption(option.code);
+                    });
+                    container.appendChild(optionElement);
+                });
+            }
+
+            updateTotals() {
+                document.getElementById('subtotal').textContent = `$${this.formatPrice(this.cartData.subtotal)}`;
+                
+                // Show/hide rows based on values
+                const shippingRow = document.getElementById('shippingRow');
+                const taxRow = document.getElementById('taxRow');
+                const discountRow = document.getElementById('discountRow');
+
+                if (this.cartData.shipping > 0) {
+                    document.getElementById('shippingCost').textContent = `$${this.formatPrice(this.cartData.shipping)}`;
+                    shippingRow.style.display = 'flex';
+                } else {
+                    shippingRow.style.display = 'none';
+                }
+
+                if (this.cartData.tax > 0) {
+                    document.getElementById('taxAmount').textContent = `$${this.formatPrice(this.cartData.tax)}`;
+                    taxRow.style.display = 'flex';
+                } else {
+                    taxRow.style.display = 'none';
+                }
+
+                if (this.cartData.discount > 0) {
+                    document.getElementById('discountAmount').textContent = `-$${this.formatPrice(this.cartData.discount)}`;
+                    discountRow.style.display = 'flex';
+                } else {
+                    discountRow.style.display = 'none';
+                }
+
+                document.getElementById('orderTotal').textContent = `$${this.formatPrice(this.cartData.total)}`;
+            }
+
+            toggleSections() {
+                const isEmpty = this.cartData.items.length === 0;
+                
+                document.getElementById('emptyCartMessage').style.display = isEmpty ? 'flex' : 'none';
+                
+                this.toggleSection('cartItems', !isEmpty);
+                this.toggleSection('couponSection', !isEmpty);
+                this.toggleSection('taxSection', !isEmpty);
+                this.toggleSection('shippingSection', !isEmpty && this.cartData.shipping_options.length > 0);
+                this.toggleSection('summarySection', !isEmpty);
+            }
+
+            toggleSection(sectionId, show) {
+                const section = document.getElementById(sectionId);
+                if (show) {
+                    section.classList.remove('empty');
+                } else {
+                    section.classList.add('empty');
+                }
+            }
+
+            // FoxyCart API Methods
+            updateQuantity(itemId, quantity) {
+                if (typeof FC !== 'undefined') {
+                    FC.client.request(`https://${FC.settings.storedomain}/cart`, {
+                        method: 'POST',
+                        data: {
+                            cart: 'update',
+                            quantity: quantity,
+                            id: itemId
+                        }
+                    }).done((data) => {
+                        this.updateFromFoxyCart();
+                    });
+                }
+            }
+
+            removeItem(itemId) {
+                if (typeof FC !== 'undefined') {
+                    FC.client.request(`https://${FC.settings.storedomain}/cart`, {
+                        method: 'POST',
+                        data: {
+                            cart: 'update',
+                            quantity: 0,
+                            id: itemId
+                        }
+                    }).done((data) => {
+                        this.updateFromFoxyCart();
+                    });
+                }
+            }
+
+            addCoupon() {
+                const couponInput = document.getElementById('couponInput');
+                const couponCode = couponInput.value.trim();
+                
+                if (couponCode && typeof FC !== 'undefined') {
+                    FC.client.request(`https://${FC.settings.storedomain}/cart`, {
+                        method: 'POST',
+                        data: {
+                            cart: 'update',
+                            coupon: couponCode
+                        }
+                    }).done((data) => {
+                        couponInput.value = '';
+                        this.updateFromFoxyCart();
+                    }).fail(() => {
+                        alert('Invalid coupon code');
+                    });
+                }
+            }
+
+            removeCoupon(couponCode) {
+                if (typeof FC !== 'undefined') {
+                    FC.client.request(`https://${FC.settings.storedomain}/cart`, {
+                        method: 'POST',
+                        data: {
+                            cart: 'update',
+                            remove_coupon: couponCode
+                        }
+                    }).done((data
